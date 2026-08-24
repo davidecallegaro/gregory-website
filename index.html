@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gregory — every assumption, with its receipts</title>
+<meta name="description" content="Gregory sits beside a fractional CFO's Excel or Google Sheets model and keeps the register: where every number came from, who confirmed it, and what changed. Nothing writes without your approval.">
+<meta property="og:title" content="Gregory — every assumption, with its receipts">
+<meta property="og:description" content="Provenance, review loop, and checks for driver-based financial models. The workbook stays yours; nothing writes without your approval.">
+<meta property="og:url" content="https://gregory.work">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23061527'/><text x='50' y='70' font-size='58' text-anchor='middle' fill='%23E8894A' font-family='Georgia,serif' font-weight='bold'>G</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#061527;--ground-hi:#0A1E33;--navy-deep:#08203A;--navy:#0F3660;--navy-lt:#2E6B9E;
+  --ink:#E6EDF4;--ink-dim:rgba(230,237,244,.72);--ink-fade:rgba(230,237,244,.48);
+  --orange:#E8894A;--orange-hot:#D9581A;--orange-deep:#A8410E;
+  --green:#4CBF8B;
+  --glass:linear-gradient(155deg,rgba(20,44,70,.72),rgba(12,30,50,.5));
+  --glass-lo:linear-gradient(155deg,rgba(20,44,70,.45),rgba(12,30,50,.3));
+  --edge:rgba(122,168,214,.22);--edge-hi:rgba(122,168,214,.38);
+  --hair:rgba(122,168,214,.16);--hair-soft:rgba(122,168,214,.1);
+  --blur:blur(24px) saturate(140%);
+  --sans:'Geist',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
+  --mono:'Geist Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --gut:clamp(20px,5vw,60px);--maxw:1140px;--r:20px;--r-sm:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}}
+body{
+  background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:17px;line-height:1.6;letter-spacing:-.008em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden;
+}
+/* layered ground: grid + aurora + particle field */
+.grid-bg{position:fixed;inset:0;z-index:-4;pointer-events:none;
+  background-image:linear-gradient(rgba(122,168,214,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(122,168,214,.05) 1px,transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000 30%,transparent 78%);
+  mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000 30%,transparent 78%)}
+.aurora{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden}
+.aurora span{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform;opacity:.85}
+.aurora .a1{width:62vw;height:62vw;max-width:880px;max-height:880px;top:-28vw;right:-16vw;
+  background:radial-gradient(circle,rgba(217,88,26,.22),rgba(217,88,26,.05) 55%,transparent 72%);
+  animation:drift1 26s ease-in-out infinite alternate}
+.aurora .a2{width:54vw;height:54vw;max-width:760px;max-height:760px;top:22vh;left:-24vw;
+  background:radial-gradient(circle,rgba(46,107,158,.28),rgba(46,107,158,.06) 55%,transparent 72%);
+  animation:drift2 34s ease-in-out infinite alternate}
+.aurora .a3{width:46vw;height:46vw;max-width:640px;max-height:640px;bottom:-20vw;right:8vw;
+  background:radial-gradient(circle,rgba(232,137,74,.12),rgba(15,54,96,.1) 50%,transparent 72%);
+  animation:drift3 40s ease-in-out infinite alternate}
+@keyframes drift1{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-6vw,7vh,0) scale(1.12)}}
+@keyframes drift2{from{transform:translate3d(0,0,0) scale(1.05)}to{transform:translate3d(7vw,-6vh,0) scale(.95)}}
+@keyframes drift3{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-5vw,-5vh,0) scale(1.1)}}
+#field{position:fixed;inset:0;z-index:-2;pointer-events:none;width:100%;height:100%}
+.vignette{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 120% 90% at 50% 30%,transparent 55%,rgba(4,13,24,.55) 100%)}
+a{color:var(--orange);text-decoration:none}
+a:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:4px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+h1{font-size:clamp(38px,5.8vw,72px);line-height:1.04;letter-spacing:-.034em;font-weight:600;color:#F4F8FC;text-wrap:balance}
+h2{font-size:clamp(27px,3.6vw,44px);line-height:1.12;letter-spacing:-.028em;font-weight:600;color:#F4F8FC;text-wrap:balance}
+.accent{color:var(--orange)}
+
+/* ---- nav ---- */
+header{position:sticky;top:0;z-index:10;background:rgba(6,21,39,.78);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-bottom:1px solid var(--hair-soft)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0}
+.wordmark{font-weight:600;font-size:21px;letter-spacing:-.02em;color:#F4F8FC}
+.wordmark .dot{color:var(--orange)}
+.btn{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:15px;font-weight:500;
+  letter-spacing:-.012em;padding:12px 22px;border-radius:999px;border:1px solid transparent;
+  background:var(--orange-hot);color:#FFF6EE;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 12px 30px -12px rgba(217,88,26,.7);
+  transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s,background .22s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);background:var(--orange-deep);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 16px 34px -12px rgba(217,88,26,.8)}
+
+/* ---- hero ---- */
+.hero{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,6fr);gap:clamp(32px,5vw,64px);
+  align-items:center;padding:clamp(56px,9vw,110px) 0 clamp(48px,7vw,88px)}
+.badge{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--orange);margin-bottom:18px}
+.badge::before{content:"";width:7px;height:7px;border-radius:999px;background:var(--orange);
+  box-shadow:0 0 10px rgba(232,137,74,.8)}
+.hero .lede{margin-top:24px;font-size:clamp(16.5px,1.6vw,19px);color:var(--ink-dim);max-width:33em}
+.hero .actions{margin-top:34px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.platforms{font-family:var(--mono);font-size:13px;color:var(--ink-fade);letter-spacing:.02em}
+
+/* ---- the cell exhibit: dark terminal ---- */
+.exhibit{min-width:0}
+.sheet{position:relative;background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--edge);border-radius:var(--r);overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 30px 80px -30px rgba(0,0,0,.7),0 0 60px -20px rgba(217,88,26,.25);
+  font-family:var(--mono);font-size:12.5px;letter-spacing:0}
+.titlebar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--hair-soft);color:var(--ink-fade)}
+.titlebar .dots{display:flex;gap:6px}
+.titlebar .dots span{width:9px;height:9px;border-radius:999px;background:rgba(122,168,214,.25)}
+.titlebar .fname{margin-left:6px;font-size:11.5px;letter-spacing:.04em}
+.formula-bar{display:flex;gap:12px;padding:10px 16px;border-bottom:1px solid var(--hair-soft);color:var(--ink-fade)}
+.formula-bar .ref{color:var(--green);font-weight:500}
+.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.grid td,.grid th{border:1px solid var(--hair-soft);padding:9px 14px;text-align:left;font-weight:400;white-space:nowrap}
+.grid th{color:var(--ink-fade);font-size:11px;text-align:center;width:34px;background:rgba(10,30,51,.5)}
+.grid td.num{text-align:right}
+.grid td.bound{border:1.5px solid var(--orange);color:#FFDCC2;font-weight:500;position:relative;
+  background:rgba(217,88,26,.09);box-shadow:0 0 18px -6px rgba(217,88,26,.5)}
+.grid td.bound::after{content:"";position:absolute;top:-1.5px;right:-1.5px;width:8px;height:8px;
+  background:var(--orange);clip-path:polygon(100% 0,0 0,100% 100%)}
+.grid td.dim{color:var(--ink-dim)}
+.note{margin:14px 16px 16px;border-left:2px solid var(--orange);background:rgba(10,30,51,.6);
+  padding:13px 16px;border-radius:0 var(--r-sm) var(--r-sm) 0;line-height:1.65}
+.note .k{color:var(--ink-fade)}
+.note .q{color:#CFE0EF}
+.note .stamp{display:inline-block;margin-top:9px;padding:3px 12px;border:1px solid rgba(76,191,139,.5);
+  border-radius:999px;color:var(--green);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.exhibit figcaption{margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ink-fade);letter-spacing:.02em}
+
+/* ---- sections ---- */
+section{padding:clamp(48px,7vw,84px) 0}
+.tag{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--orange);margin-bottom:16px}
+.tag::before{content:"// ";color:var(--ink-fade)}
+.section-lede{margin-top:16px;color:var(--ink-dim);max-width:38em}
+
+/* three functions: glass cards */
+.cards{margin-top:40px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{position:relative;background:var(--glass-lo);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--edge);border-radius:var(--r);padding:26px 28px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 20px 50px -26px rgba(0,0,0,.6);
+  transition:transform .25s cubic-bezier(.2,.7,.3,1),border-color .25s}
+.card:hover{transform:translateY(-3px);border-color:var(--edge-hi)}
+.card .idx{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-fade)}
+.card h3{font-size:20px;font-weight:600;margin:12px 0 10px;color:#F4F8FC}
+.card p{font-size:15px;color:var(--ink-dim)}
+.card p strong{color:var(--ink);font-weight:500}
+
+/* cycle: terminal log */
+.cycle{margin-top:40px;max-width:47em;background:var(--glass-lo);border:1px solid var(--edge);
+  border-radius:var(--r);overflow:hidden;counter-reset:step;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 20px 50px -26px rgba(0,0,0,.6)}
+.step{display:grid;grid-template-columns:56px minmax(0,1fr);gap:16px;align-items:baseline;
+  padding:17px 22px;border-bottom:1px solid var(--hair-soft)}
+.step:last-child{border-bottom:none}
+.step::before{counter-increment:step;content:"0" counter(step);
+  font-family:var(--mono);font-size:12.5px;color:var(--orange);font-weight:500;letter-spacing:.05em}
+.step p{color:var(--ink-dim);font-size:15.5px}
+.step p strong{color:#F4F8FC;font-weight:500}
+.step p .flag{color:var(--orange);font-weight:500}
+
+/* non-negotiables */
+.rules{margin-top:40px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.rule-card{position:relative;background:rgba(10,30,51,.55);border:1px solid var(--hair);
+  border-radius:var(--r);padding:26px 28px}
+.rule-card::before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:2px;
+  background:var(--orange);border-radius:2px}
+.rule-card .rid{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink-fade)}
+.rule-card h3{font-size:18.5px;font-weight:600;color:#F4F8FC;margin:8px 0 8px}
+.rule-card p{font-size:14.5px;color:var(--ink-dim)}
+
+/* cta */
+.cta{padding:clamp(56px,8vw,96px) 0}
+.cta-card{position:relative;overflow:hidden;background:var(--glass);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--edge);border-radius:var(--r);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 30px 80px -30px rgba(0,0,0,.7);
+  padding:clamp(32px,5vw,56px);max-width:52em}
+.cta-card::after{content:"";position:absolute;right:-120px;top:-120px;width:320px;height:320px;
+  border-radius:50%;background:radial-gradient(circle,rgba(217,88,26,.18),transparent 70%);pointer-events:none}
+.cta .actions{margin-top:28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.cta .mail{font-family:var(--mono);font-size:14.5px;letter-spacing:0}
+
+/* ---- liquid glass ---- */
+/* Chromium composites url() displacement inside backdrop-filter; other engines
+   keep the plain frosted fallback. .lg is set on <html> by the JS probe after
+   the edge-lens displacement map is generated. */
+.lg .sheet,.lg .card,.lg .cta-card{
+  -webkit-backdrop-filter:url(#lg-lens) blur(4px) saturate(170%) brightness(1.04);
+  backdrop-filter:url(#lg-lens) blur(4px) saturate(170%) brightness(1.04);
+}
+.sheet,.card,.cta-card,.step{position:relative}
+/* specular rim: bright top-left arc, faint warm bottom-right */
+.sheet::before,.card::before,.cta-card::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  box-shadow:inset 1.5px 1.5px 0 -0.5px rgba(255,255,255,.35),
+             inset -1px -1px 0 -0.5px rgba(232,137,74,.18),
+             inset 0 0 18px rgba(255,255,255,.04);
+}
+.sheet>*,.card>*,.cta-card>*{position:relative;z-index:2}
+/* hover sheen: a specular band sweeping across (.cta-card::after is its orb) */
+.card::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.09) 45%,rgba(255,255,255,.16) 50%,rgba(255,255,255,.09) 55%,transparent 70%);
+  background-size:260% 100%;background-position:120% 0;background-repeat:no-repeat;
+  opacity:0;transition:opacity .3s,background-position 1.1s cubic-bezier(.2,.7,.3,1);
+}
+.card:hover::after{opacity:1;background-position:-60% 0}
+
+footer{border-top:1px solid var(--hair-soft);padding:26px 0 40px}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12.5px;color:var(--ink-fade);letter-spacing:.02em}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:36px;padding:44px 0 48px}
+  .cards{grid-template-columns:1fr}
+  .rules{grid-template-columns:1fr}
+  .step{grid-template-columns:40px minmax(0,1fr);gap:12px}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="lg-lens" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feImage id="lg-map" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="130" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div class="grid-bg" aria-hidden="true"></div>
+<div class="aurora" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap nav">
+    <a class="wordmark" href="/">Gregory<span class="dot">.</span></a>
+    <a class="btn" href="mailto:hello@gregory.work?subject=Early%20access">Request early access</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <p class="badge">For fractional CFOs</p>
+      <h1>Every assumption, <span class="accent">with its receipts.</span></h1>
+      <p class="lede">Gregory sits beside your Excel or Google&nbsp;Sheets model and keeps the register: where every number came from, who confirmed it, and what changed &mdash; and it never writes a cell without your approval.</p>
+      <div class="actions">
+        <a class="btn" href="mailto:hello@gregory.work?subject=Early%20access">Request early access</a>
+        <span class="platforms">EXCEL &middot; GOOGLE SHEETS</span>
+      </div>
+    </div>
+    <figure class="exhibit">
+      <div class="sheet" role="img" aria-label="A spreadsheet cell holding a 50% deposit assumption, with Gregory's provenance note: source, the client's own words, and confirmation status.">
+        <div class="titlebar"><span class="dots"><span></span><span></span><span></span></span><span class="fname">acme_2027_model.xlsx &mdash; register</span></div>
+        <div class="formula-bar"><span class="ref">Inputs!B7</span><span>deposit_pct_po_1_3</span></div>
+        <table class="grid">
+          <tr><th></th><th>A</th><th>B</th></tr>
+          <tr><th>6</th><td class="dim">Payment terms &mdash; PO 1&ndash;3</td><td class="num dim">net 30</td></tr>
+          <tr><th>7</th><td class="dim">Supplier deposit &mdash; PO 1&ndash;3</td><td class="num bound">50%</td></tr>
+          <tr><th>8</th><td class="dim">Lead time (days)</td><td class="num dim">45</td></tr>
+        </table>
+        <div class="note">
+          <div><span class="k">source:</span> founder call &middot; 2026&#8209;08&#8209;12</div>
+          <div><span class="k">quote:</span> <span class="q">&ldquo;for the first three POs they want fifty percent up front&rdquo;</span></div>
+          <div class="stamp">confirmed &middot; 2026&#8209;08&#8209;14</div>
+        </div>
+      </div>
+      <figcaption>the note gregory keeps on a bound cell &mdash; native workbook features only. no macros, no add-ins.</figcaption>
+    </figure>
+  </div>
+
+  <section id="what">
+    <div class="wrap">
+      <p class="tag">What Gregory does</p>
+      <h2>The workbook stays the model. Gregory keeps the record beside it.</h2>
+      <p class="section-lede">Driver-based models live or die on their assumptions &mdash; and the assumptions live in emails, call notes, and someone&rsquo;s memory. Gregory gives them a register of their own.</p>
+      <div class="cards">
+        <div class="card">
+          <span class="idx">Register</span>
+          <h3>Provenance</h3>
+          <p>Every assumption carries a <strong>source, a date, an owner, and a confidence level</strong> &mdash; from exports, PDFs, call transcripts, emails, or a founder&rsquo;s spoken word. Stale and unconfirmed assumptions are flagged before they become the forecast.</p>
+        </div>
+        <div class="card">
+          <span class="idx">Cycle</span>
+          <h3>Review loop</h3>
+          <p>Gregory drafts the client review request <strong>from the register, not from memory</strong>, turns the reply and call transcripts into proposed cell changes with the quote behind each one, and shows you the diff. You approve, edit, or reject &mdash; item by item.</p>
+        </div>
+        <div class="card">
+          <span class="idx">Findings</span>
+          <h3>Checks</h3>
+          <p>The line-by-line checks you already run by hand &mdash; hardcoded numbers inside formulas, broken references, rows that stopped reconciling &mdash; run on every cycle and come back as <strong>findings, never silent fixes</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cycle">
+    <div class="wrap">
+      <p class="tag">One cycle, end to end</p>
+      <h2>From &ldquo;the client replied&rdquo; to a model you can defend.</h2>
+      <div class="cycle">
+        <div class="step"><p><strong>Register the source.</strong> The reply, the transcript, the PDF &mdash; filed against the engagement.</p></div>
+        <div class="step"><p><strong>Extraction proposes changes.</strong> Each proposed value carries the exact quote it came from; anything that can&rsquo;t be grounded in the source&rsquo;s own words is <span class="flag">flagged, not trusted</span>.</p></div>
+        <div class="step"><p><strong>You decide every item.</strong> Approve, edit, or reject &mdash; with the diff and the reasons in front of you.</p></div>
+        <div class="step"><p><strong>Approved changes are applied</strong> &mdash; with a snapshot before and after, so any apply can be rolled back.</p></div>
+        <div class="step"><p><strong>The trail is written into the workbook.</strong> Cell notes with source and status, a change note for the client, and a fresh run of the checks.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="wrap">
+      <p class="tag">Non-negotiables</p>
+      <h2>Product rules, enforced in code &mdash; not preferences.</h2>
+      <div class="rules">
+        <div class="rule-card">
+          <span class="rid">N1</span>
+          <h3>Nothing writes without approval.</h3>
+          <p>The only write path runs through changes a human decided. There is no auto-apply, and no way to bypass the gate.</p>
+        </div>
+        <div class="rule-card">
+          <span class="rid">N2</span>
+          <h3>The workbook stays yours.</h3>
+          <p>Provenance uses native features &mdash; named ranges, notes, a hidden sheet. No macros, no add-in dependency. Remove Gregory and the model still opens everywhere.</p>
+        </div>
+        <div class="rule-card">
+          <span class="rid">N3</span>
+          <h3>Excel in, Excel out.</h3>
+          <p>A model lives on one platform for its whole life. Gregory never converts your file or moves it to a format your client can&rsquo;t open.</p>
+        </div>
+        <div class="rule-card">
+          <span class="rid">N5</span>
+          <h3>Client data stays where the engagement allows.</h3>
+          <p>Per-engagement flags control cloud processing and AI use. Calls send the minimum text needed, and client values never appear in logs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap cta">
+    <div class="cta-card">
+      <p class="tag">Early access</p>
+      <h2>Built hands-on with fractional CFOs.</h2>
+      <p class="section-lede">Gregory is in development with a working fractional CFO practice as its first user. If you keep client models honest for a living and want a hand in shaping it, write to us.</p>
+      <div class="actions">
+        <a class="btn" href="mailto:hello@gregory.work?subject=Early%20access">Request early access</a>
+        <a class="mail" href="mailto:hello@gregory.work">hello@gregory.work</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>&copy; 2026 gregory</span>
+    <span>gregory.work</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Liquid-glass probe: only Chromium composites url() filters inside
+  // backdrop-filter; other engines silently drop the whole effect, so gate it.
+  var isChromium=!!window.chrome&&(!!navigator.userAgentData||/Chrom(e|ium)/.test(navigator.userAgent));
+  if(!isChromium||!CSS.supports('backdrop-filter','blur(1px)'))return;
+  // Edge-lens displacement map: a rounded-rect SDF whose outward normals are
+  // encoded in R/G within a border band, neutral (128,128) in the middle —
+  // refraction lives at the rim, the center stays optically clear.
+  var SZ=256,RAD=56,BAND=76;
+  var cv=document.createElement('canvas');cv.width=cv.height=SZ;
+  var g=cv.getContext('2d'),img=g.createImageData(SZ,SZ),D=img.data;
+  for(var y=0;y<SZ;y++)for(var x=0;x<SZ;x++){
+    var px=x+.5,py=y+.5;
+    var qx=Math.abs(px-SZ/2)-(SZ/2-RAD),qy=Math.abs(py-SZ/2)-(SZ/2-RAD);
+    var ax=Math.max(qx,0),ay=Math.max(qy,0);
+    var outer=Math.hypot(ax,ay)+Math.min(Math.max(qx,qy),0);
+    var inside=RAD-outer;              // distance in from the glass edge
+    var t=inside<BAND?1-inside/BAND:0; if(t<0)t=0; t*=t*t;   // cubic falloff
+    var nx=0,ny=0;
+    if(ax>0||ay>0){var l=Math.hypot(ax,ay)||1;nx=ax/l*(px<SZ/2?-1:1);ny=ay/l*(py<SZ/2?-1:1);}
+    else if(qx>qy){nx=px<SZ/2?-1:1;}else{ny=py<SZ/2?-1:1;}
+    var i=(y*SZ+x)*4;
+    D[i]=128+nx*t*127;D[i+1]=128+ny*t*127;D[i+2]=128;D[i+3]=255;
+  }
+  g.putImageData(img,0,0);
+  var fe=document.getElementById('lg-map');
+  fe.setAttribute('href',cv.toDataURL());
+  fe.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',cv.toDataURL());
+  document.documentElement.classList.add('lg');
+})();
+(function(){
+  var c=document.getElementById('field'),x=c.getContext('2d');
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dpr=Math.min(window.devicePixelRatio||1,2),W,H,pts=[];
+  var LINK=150, N;
+  function resize(){
+    W=window.innerWidth;H=window.innerHeight;
+    c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);
+    N=Math.min(90,Math.max(36,Math.round(W*H/26000)));
+    while(pts.length<N)pts.push(spawn());
+    pts.length=N;
+  }
+  function spawn(){
+    return {x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,
+      r:Math.random()*1.4+.6,
+      hot:Math.random()<.14};
+  }
+  function frame(){
+    x.clearRect(0,0,W,H);
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<-20)p.x=W+20;if(p.x>W+20)p.x=-20;
+      if(p.y<-20)p.y=H+20;if(p.y>H+20)p.y=-20;
+    }
+    x.lineWidth=1;
+    for(var i=0;i<pts.length;i++){
+      for(var j=i+1;j<pts.length;j++){
+        var a=pts[i],b=pts[j],dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy;
+        if(d2<LINK*LINK){
+          var t=1-Math.sqrt(d2)/LINK;
+          x.strokeStyle=(a.hot&&b.hot)?'rgba(232,137,74,'+(t*.22)+')':'rgba(122,168,214,'+(t*.13)+')';
+          x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();
+        }
+      }
+    }
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      x.fillStyle=p.hot?'rgba(232,137,74,.8)':'rgba(158,193,226,.55)';
+      x.beginPath();x.arc(p.x,p.y,p.r,0,6.2832);x.fill();
+      if(p.hot){
+        x.fillStyle='rgba(232,137,74,.12)';
+        x.beginPath();x.arc(p.x,p.y,p.r*4,0,6.2832);x.fill();
+      }
+    }
+  }
+  function loop(){frame();requestAnimationFrame(loop);}
+  resize();window.addEventListener('resize',resize);
+  if(reduced){frame();}else{loop();}
+})();
+</script>
+</body>
+</html>
