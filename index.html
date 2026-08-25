@@ -26,7 +26,8 @@
   --blur:blur(24px) saturate(150%);
   --sans:'Geist',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
   --mono:'Geist Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
-  --gut:clamp(20px,5vw,60px);--maxw:1240px;--r:24px;--r-sm:16px;
+  --gut:clamp(20px,5vw,60px);--pad:clamp(22px,2.4vw,32px);--sec:clamp(54px,7vw,96px);
+  --maxw:1240px;--r:24px;--r-sm:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -71,7 +72,7 @@ h2{font-size:clamp(27px,3.6vw,44px);line-height:1.12;letter-spacing:-.028em;font
 /* ---- nav ---- */
 header{position:sticky;top:0;z-index:10;background:rgba(6,21,39,.78);
   -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-bottom:1px solid var(--hair-soft)}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:15px}
 .wordmark{font-weight:600;font-size:21px;letter-spacing:-.02em;color:#F4F8FC}
 .wordmark .dot{color:var(--orange)}
 .btn{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:15px;font-weight:500;
@@ -84,7 +85,7 @@ header{position:sticky;top:0;z-index:10;background:rgba(6,21,39,.78);
 
 /* ---- hero ---- */
 .hero{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,6fr);gap:clamp(32px,5vw,64px);
-  align-items:center;padding:clamp(56px,9vw,110px) 0 clamp(48px,7vw,88px)}
+  align-items:center;padding-block:var(--sec)}
 .badge{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;
   letter-spacing:.09em;text-transform:uppercase;color:var(--orange);margin-bottom:18px}
 .badge::before{content:"";width:7px;height:7px;border-radius:999px;background:var(--orange);
@@ -123,7 +124,7 @@ header{position:sticky;top:0;z-index:10;background:rgba(6,21,39,.78);
 .exhibit figcaption{margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ink-fade);letter-spacing:.02em}
 
 /* ---- sections ---- */
-section{padding:clamp(54px,6.5vw,96px) 0;position:relative}
+section{padding:var(--sec) 0;position:relative}
 .tag{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--orange);margin-bottom:16px}
 .tag::before{content:"// ";color:var(--ink-fade)}
@@ -132,7 +133,7 @@ section{padding:clamp(54px,6.5vw,96px) 0;position:relative}
 /* three functions: glass cards */
 .cards{margin-top:40px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .card{position:relative;background:var(--glass-lo);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
-  border:1px solid var(--edge);border-radius:var(--r);padding:30px 32px;
+  border:1px solid var(--edge);border-radius:var(--r);padding:var(--pad);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 20px 50px -26px rgba(0,0,0,.6);
   transition:transform .25s cubic-bezier(.2,.7,.3,1),box-shadow .25s}
 .card:hover{transform:translateY(-4px);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 28px 60px -26px rgba(0,0,0,.7)}
@@ -141,12 +142,21 @@ section{padding:clamp(54px,6.5vw,96px) 0;position:relative}
 .card p{font-size:15px;color:var(--ink-dim)}
 .card p strong{color:var(--ink);font-weight:500}
 
+/* sources strip */
+.sources{margin-top:16px;background:rgba(10,30,51,.55);border:1px solid var(--hair);
+  border-radius:var(--r);padding:var(--pad)}
+.sources p{color:var(--ink-dim);font-size:15.5px;max-width:46em}
+.sources p strong{color:#F4F8FC;font-weight:500}
+.chips{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;list-style:none}
+.chips li{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--ink-dim);
+  border:1px solid var(--hair);border-radius:999px;padding:6px 13px;background:rgba(6,21,39,.42)}
+
 /* cycle: terminal log */
 .cycle{margin-top:40px;max-width:47em;background:var(--glass-lo);border:1px solid var(--edge);
   border-radius:var(--r);overflow:hidden;counter-reset:step;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 20px 50px -26px rgba(0,0,0,.6)}
 .step{display:grid;grid-template-columns:56px minmax(0,1fr);gap:16px;align-items:baseline;
-  padding:17px 22px;border-bottom:1px solid var(--hair-soft)}
+  padding:17px var(--pad);border-bottom:1px solid var(--hair-soft)}
 .step:last-child{border-bottom:none}
 .step::before{counter-increment:step;content:"0" counter(step);
   font-family:var(--mono);font-size:12.5px;color:var(--orange);font-weight:500;letter-spacing:.05em}
@@ -157,20 +167,21 @@ section{padding:clamp(54px,6.5vw,96px) 0;position:relative}
 /* non-negotiables */
 .rules{margin-top:40px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .rule-card{position:relative;background:rgba(10,30,51,.55);border:1px solid var(--hair);
-  border-radius:var(--r);padding:30px 32px}
-.rule-card::before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:2px;
+  border-radius:var(--r);padding:var(--pad)}
+.rule-card::before{content:"";position:absolute;left:0;top:var(--pad);bottom:var(--pad);width:2px;
   background:var(--orange);border-radius:2px}
 .rule-card .rid{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink-fade)}
 .rule-card h3{font-size:18.5px;font-weight:600;color:#F4F8FC;margin:8px 0 8px}
 .rule-card p{font-size:14.5px;color:var(--ink-dim)}
+.rules .rule-card:last-child:nth-child(odd){grid-column:1/-1}
 
 /* cta */
-.cta{padding:clamp(64px,8vw,110px) 0}
+.cta{padding-block:var(--sec)}
 .cta-card{position:relative;overflow:hidden;background:var(--glass);
   -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
   border:1px solid var(--edge);border-radius:var(--r);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 20px 50px -26px rgba(0,0,0,.6);
-  padding:clamp(32px,5vw,56px);max-width:52em}
+  padding:var(--pad);max-width:52em}
 .cta-card::after{content:"";position:absolute;right:-120px;top:-120px;width:320px;height:320px;
   border-radius:50%;background:radial-gradient(circle,rgba(217,88,26,.18),transparent 70%);pointer-events:none}
 .cta .actions{margin-top:28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
@@ -181,10 +192,15 @@ footer{border-top:1px solid var(--hair-soft);padding:26px 0 40px}
   font-family:var(--mono);font-size:12.5px;color:var(--ink-fade);letter-spacing:.02em}
 
 @media (max-width:860px){
-  .hero{grid-template-columns:1fr;gap:36px;padding:44px 0 48px}
+  .hero{grid-template-columns:1fr;gap:36px}
   .cards{grid-template-columns:1fr}
   .rules{grid-template-columns:1fr}
   .step{grid-template-columns:40px minmax(0,1fr);gap:12px}
+}
+@media (max-width:420px){
+  .nav{gap:10px}
+  .nav .btn{padding:10px 15px;font-size:13.5px}
+  .wordmark{font-size:19px}
 }
 </style>
 </head>
@@ -241,7 +257,7 @@ footer{border-top:1px solid var(--hair-soft);padding:26px 0 40px}
         <div class="card">
           <span class="idx">Register</span>
           <h3>Provenance</h3>
-          <p>Every assumption carries a <strong>source, a date, an owner, and a confidence level</strong> &mdash; from exports, PDFs, call transcripts, emails, or a founder&rsquo;s spoken word. Stale and unconfirmed assumptions are flagged before they become the forecast.</p>
+          <p>Every assumption carries a <strong>source, a date, an owner, and a confidence level</strong> &mdash; down to the line it was quoted from. Stale and unconfirmed assumptions are flagged before they become the forecast.</p>
         </div>
         <div class="card">
           <span class="idx">Cycle</span>
@@ -253,6 +269,19 @@ footer{border-top:1px solid var(--hair-soft);padding:26px 0 40px}
           <h3>Checks</h3>
           <p>The line-by-line checks you already run by hand &mdash; hardcoded numbers inside formulas, broken references, rows that stopped reconciling &mdash; run on every cycle and come back as <strong>findings, never silent fixes</strong>.</p>
         </div>
+      </div>
+      <div class="sources">
+        <p><strong>Every source, structured or not.</strong> Half of what a model rests on never arrives as a table &mdash; it&rsquo;s a signed contract, a recorded call, a one-line email. Gregory reads them all into one register, so a number said out loud is held to the same standard as one pulled from an export.</p>
+        <ul class="chips">
+          <li>accounting &amp; ERP exports</li>
+          <li>bank statements</li>
+          <li>CSVs &amp; workbooks</li>
+          <li>contracts &amp; PDFs</li>
+          <li>email threads</li>
+          <li>call transcripts</li>
+          <li>chat messages</li>
+          <li>your own notes</li>
+        </ul>
       </div>
     </div>
   </section>
@@ -290,6 +319,11 @@ footer{border-top:1px solid var(--hair-soft);padding:26px 0 40px}
           <span class="rid">N3</span>
           <h3>Excel in, Excel out.</h3>
           <p>A model lives on one platform for its whole life. Gregory never converts your file or moves it to a format your client can&rsquo;t open.</p>
+        </div>
+        <div class="rule-card">
+          <span class="rid">N4</span>
+          <h3>No number without a quote.</h3>
+          <p>Extraction can only propose a value it can point to in the source, word for word. What it can&rsquo;t ground it flags as a gap &mdash; it never fills one in. And approved changes reach the cell through deterministic code, not through a model writing a formula: the number in your workbook is the number you approved.</p>
         </div>
         <div class="rule-card">
           <span class="rid">N5</span>
